@@ -32,6 +32,11 @@ export default function SignIn() {
       const response = await loginUser(user).unwrap();
       console.log(response.accessToken);
       await AsyncStorage.setItem("token", response.accessToken).then(() => {
+        showMessage({
+          message: "Success",
+          description: "You have successfully logged in",
+          type: "success",
+        });
         navigation.navigate("chats");
       });
     } catch (err) {

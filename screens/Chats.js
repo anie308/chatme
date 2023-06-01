@@ -16,7 +16,7 @@ export default function Chats() {
   const [token, setToken] = useState(null);
   useEffect(() => {
     const getToken = async () => {
-      const token = await AsyncStorage.getItem("token");
+      const token = await AsyncStorage.getItem("token")
       const decodedId = jwt_decode(token).id;
        setToken(decodedId);
     };

@@ -22,22 +22,22 @@ export default function SignIn() {
     try {
       const trimmedUsername = username.trim();
       const trimmedPassword = password.trim();
-  
+
       if (!trimmedUsername || !trimmedPassword) {
         alert("Please Fill All Fields");
         return;
       }
-  
+
       const user = { username: trimmedUsername, password: trimmedPassword };
       const response = await loginUser(user).unwrap();
-      console.log(response.accessToken)
-      navigation.navigate("chats");
+      console.log(response.accessToken);
+      await AsyncStorage.setItem("token", response.accessToken).then(() => {
+        navigation.navigate("chats");
+      });
     } catch (err) {
       console.warn(err);
     }
   };
-
-  
 
   return (
     <SafeAreaView>

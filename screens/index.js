@@ -11,7 +11,7 @@ import Chat from "./Chat";
 import Chats from "./Chats";
 import CameraScreen from "./CameraScreen";
 import Profile from "./Profile";
-export default function Route({ navigation }) {
+export default function Route() {
   const [currUser, setCurrUser] = useState(null);
 
   useEffect(() => {
@@ -23,20 +23,20 @@ export default function Route({ navigation }) {
     getToken();
   });
 
-  const [loading, setLoading] = useState(false);
-  if (loading) {
-    return (
-      <View>
-        <Text>Loading...</Text>
-      </View>
-    );
-  }
+  // const [loading, setLoading] = useState(false);
+  // if (loading) {
+  //   return (
+  //     <View>
+  //       <Text>Loading...</Text>
+  //     </View>
+  //   );
+  // }
 
   // initialRouteName={`${user.}`
   const Stack = createNativeStackNavigator();
   return (
     <NavigationContainer>
-      <Stack.Navigator>
+      <Stack.Navigator initialRouteName={`${currUser? "chats": "login"}`}>
         {!currUser && (
           <>
             <Stack.Screen

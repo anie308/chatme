@@ -30,6 +30,7 @@ export default function SignIn() {
 
       const user = { username: trimmedUsername, password: trimmedPassword };
       const response = await loginUser(user).unwrap();
+      dispatch(setUser(response.accessToken));
       console.log(response.accessToken);
       await AsyncStorage.setItem("token", response.accessToken).then(() => {
         showMessage({
@@ -94,6 +95,7 @@ const Container = styled.View`
   height: 100%;
   flex-direction: column;
   align-items: center;
+  background-color: #202c33;
 `;
 const LogoCon = styled.View`
   margin-top: 60px;
@@ -138,49 +140,10 @@ const Input = styled.TextInput`
 const SubmitBtn = styled.TouchableOpacity`
   height: 60px;
   width: 100%;
-  background-color: #4a86f7;
+  background-color: #005c4b;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   margin-top: 30px;
   border-radius: 12px;
 `;
-
-// <View className="h-[100%] bg-blue-500  pt-[100px] px-[20px]">
-// <View>
-//   <View className="flex flex-row w-full items-center justify-center">
-//     <Text className=" text-center text-[30px]">Uni</Text>
-//     <Text className=" text-center text-[30px] ">Chat</Text>
-//   </View>
-// </View>
-// <View className="mt-[90px] space-y-[40px]">
-//   <TextInput
-//     className="border-[2px] border-blue-300 h-[60px] px-[10px] rounded-[5px]"
-//
-//   />
-//   <TextInput
-//     className="border-[2px] border-blue-300 h-[60px] px-[10px] rounded-[5px]"
-//     placeholder="Password"
-//
-//     value={password}
-//     onChangeText={setPassword}
-//     placeholderTextColor="white"
-//   />
-//   <TouchableOpacity
-//     className="h-[50px] bg-white flex items-center justify-center rounded-[5px] disabled:bg-gray-200"
-//     onPress={handlePress}
-//   //   disabled={!password || !email}
-//   >
-//     <Text>Sign In</Text>
-//   </TouchableOpacity>
-//   <View className='flex flex-row items-center space-x-[10px] w-full justify-center'>
-//       <Text className=''>
-//           Don't have an account?
-
-//       </Text>
-//       <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
-//               <Text>SignUp</Text>
-//           </TouchableOpacity>
-//   </View>
-// </View>
-// </View>

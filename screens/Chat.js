@@ -1,12 +1,10 @@
-
-
 import React, { useState, useEffect, useRef } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import styled from "styled-components/native";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { StatusBar } from "expo-status-bar";
-import {io} from "socket.io-client";
+import { io } from "socket.io-client";
 import {
   useGetSingleUserQuery,
   useAddMessageMutation,
@@ -17,16 +15,18 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import jwt_decode from "jwt-decode";
 
 export default function Chat() {
-  // const host = "https://003b-197-210-84-111.eu.ngrok.io"
-  // const socket = useRef();
+  const [message, setMessages] = useState([]);
+  const scrollRef = useRef();
+  const host = "https://chatwave.onrender.com/api/v1";
+  const socket = useRef();
   const [addMessage, { isSuccess: success }] = useAddMessageMutation();
   const navigation = useNavigation();
   const [msg, setMsg] = useState("");
   const [token, setToken] = useState(null);
-  // const [arrivalMessage, setArrivalMessage] = useState(null);
+  const [arrivalMessage, setArrivalMessage] = useState(null);
   const route = useRoute();
   const { userId } = route.params;
-  
+
   useEffect(() => {
     const getParams = async () => {
       const token = await AsyncStorage.getItem("token");
@@ -36,13 +36,13 @@ export default function Chat() {
     getParams();
   }, []);
 
-  // useEffect(() => {
-  //   if(token){
-  //     socket.current = io(host);
-  //     socket.current.emit("add-user", token);
-  //   }
-  // }, [token])
-  
+  useEffect(() => {
+    if (token) {
+      socket.current = io(host);
+      socket.current.emit("add-user", token);
+    }
+  }, [token]);
+
   const { data, isSuccess, refetch } = useGetSingleUserQuery(userId);
   const user = data?.data;
 
@@ -54,7 +54,13 @@ export default function Chat() {
     from: token,
     to: userId,
   });
-  const userMessages = messages;
+
+  useEffect(() => {
+    if (messages) {
+      setMessages(messages);
+    }
+  }, [messages]);
+
 
   useEffect(() => {
     refetch();
@@ -70,28 +76,35 @@ export default function Chat() {
 
     await addMessage(data).unwrap();
     setMsg("");
-    // socket.current.emit("send-msg",{
-    //   from: token,
-    //   message: msg,
-    //   to: user._id,
-    // })
 
-    // const msg = [...userMessages];
-    // msg.push({fromSelf: true, message: msg});
-    // userMessages = msg;
+    socket.current.emit("send-msg",{
+      from: token,
+      message: msg,
+      to: user._id,
+    })
+
+    const msgs = [...message];
+    msgs.push({fromSelf: true, message: msg});
+    setMessages(msgs);
   };
 
-  // useEffect(() => {
-  //   if(socket.current){
-  //     socket.current.on("msg-recieve", (msg)=> {
-  //       setArrivalMessage({FormData:false, message: msg })
-  //     })
-  //   }
-  // })
+  useEffect(() => {
+    if(socket.current){
+      socket.current.on("msg-recieve", (msg)=> {
+        console.log({msg})
+        setArrivalMessage({fromSelf:false, message: msg })
+      })
+    }
+  })
 
-  // useEffect(() => {
-  //   arrivalMessage  && userMessages.push({fromSelf: false, message: arrivalMessage})
-  // }, [arrivalMessage])
+  useEffect(() => {
+    arrivalMessage  && setMessages.push((prev)=> [...prev, arrivalMessage])
+  }, [arrivalMessage])
+
+
+  useEffect(()=> {
+    scrollRef.current?.scrollIntoView({behavior: "smooth"})
+  }, [message])
 
   return (
     <SafeAreaView>
@@ -125,18 +138,20 @@ export default function Chat() {
             </TouchableOpacity>
           </ActionCon>
         </HeaderCon>
-        <ScrollView style={{ height: "100%", backgroundColor: "#111B21" }}>
+        <View style={{ height: "100%", backgroundColor: "#111B21", flex: 1}}>
+        <ScrollView style={{ height: "100%" }}>
           <MessageCon>
             <MessageView>
               {successMessages &&
-                userMessages.map((msg, index) => (
-                  <MessageText fromSelf={msg.fromSelf} key={index}>
-                    {msg.message}
+                message?.map((msg, index) => (
+                  <MessageText fromSelf={msg?.fromSelf} key={index}>
+                    {msg?.message}
                   </MessageText>
                 ))}
             </MessageView>
           </MessageCon>
         </ScrollView>
+        </View>
         <InputCon>
           <Input
             placeholder="Type Message..."
@@ -160,7 +175,7 @@ export default function Chat() {
 const Container = styled.View`
   height: 100%;
   width: 100%;
-  background-color: #fff;
+  background-color: #111B21;
 `;
 
 const HeaderCon = styled.View`
@@ -193,8 +208,7 @@ const ActionCon = styled.View`
 `;
 
 const InputCon = styled.View`
-  position: absolute;
-  bottom: 10px;
+  
   width: 99%;
   height: 55px;
   border-radius: 30px;
@@ -203,6 +217,7 @@ const InputCon = styled.View`
   justify-content: center;
   padding: 5px;
   background-color: #202c33;
+  margin-bottom: 12px;
 `;
 
 const Input = styled.TextInput`
@@ -213,6 +228,7 @@ const Input = styled.TextInput`
   padding: 0 10px;
   color: white;
   font-family: "Medium";
+  
 `;
 
 const IconCon = styled.TouchableOpacity`
@@ -243,5 +259,8 @@ const MessageText = styled.Text`
   border-bottom-left-radius: 10px;
   border-top-left-radius: ${(props) => (props.fromSelf ? "10px" : "0px")};
   border-top-right-radius: ${(props) => (props.fromSelf ? "0px" : "10px")};
-
 `;
+
+
+//position: absolute;
+//bottom: 10px;

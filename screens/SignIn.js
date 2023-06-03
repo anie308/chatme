@@ -1,4 +1,4 @@
-import { View,  TouchableOpacity } from "react-native";
+import { View,  TouchableOpacity, KeyboardAvoidingView } from "react-native";
 import React from "react";
 import styled from "styled-components/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -8,6 +8,8 @@ import { showMessage } from "react-native-flash-message";
 import { useLoginUserMutation } from "../app/feature/user/apiSlice";
 import { ActivityIndicator } from "react-native";
 import { StatusBar } from "expo-status-bar";
+import { Platform } from "react-native";
+import {useHeaderHeight} from '@react-navigation/elements';
 
 export default function SignIn() {
   const [loginUser, { isLoading }] = useLoginUserMutation();
@@ -41,11 +43,19 @@ export default function SignIn() {
       console.warn(err);
     }
   };
+  const headerHeight = useHeaderHeight();
 
   return (
     <SafeAreaView>
       <StatusBar style="light" backgroundColor="#0B141A" />
-      <Container>
+     <KeyboardAvoidingView
+     style={{height: '100%', backgroundColor: '#0b141a'}}
+     contentContainerStyle={{backgroundColor: '#0b141a'}}
+     behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+     keyboardVerticalOffset={headerHeight}
+     >
+     <Container
+      >
         <LogoCon></LogoCon>
         <TextCon>
           <HeadText style={{ color: "white" }}>
@@ -87,11 +97,12 @@ export default function SignIn() {
           </SubmitBtn>
         </FormCon>
       </Container>
+     </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
 
-const Container = styled.KeyboardAvoidingView`
+const Container = styled.View`
   padding: 20px;
   display: flex;
   height: 100%;
@@ -100,7 +111,7 @@ const Container = styled.KeyboardAvoidingView`
   background-color: #0b141a;
 `;
 const LogoCon = styled.View`
-  margin-top: 60px;
+  margin-top: 50px;
   height: 150px;
   width: 150px;
   background-color: #005c4b;
@@ -111,7 +122,7 @@ const LogoCon = styled.View`
 const TextCon = styled.View`
   height: 50px;
   width: 100%;
-  margin-top: 50px;
+  margin-top: 30px;
   flex-direction: column;
   justify-content: center;
   align-items: center;
@@ -126,7 +137,7 @@ const BodyText = styled.Text`
 `;
 const FormCon = styled.View`
   width: 100%;
-  margin-top: 40px;
+  margin-top: 25px;
 `;
 
 const Input = styled.TextInput`
@@ -136,7 +147,7 @@ const Input = styled.TextInput`
   padding: 10px;
   font-family: "Regular";
   font-size: 15px;
-  margin-top: 30px;
+  margin-top: 25px;
   color: white;
 `;
 
@@ -147,6 +158,6 @@ const SubmitBtn = styled.TouchableOpacity`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  margin-top: 30px;
+  margin-top: 20px;
   border-radius: 12px;
 `;

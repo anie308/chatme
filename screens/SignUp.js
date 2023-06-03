@@ -1,4 +1,11 @@
-import { View, Text, TextInput, TouchableOpacity, ActivityIndicator } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  ActivityIndicator,
+  KeyboardAvoidingView,
+} from "react-native";
 import React from "react";
 import styled from "styled-components/native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -6,22 +13,24 @@ import { useNavigation } from "@react-navigation/native";
 import { showMessage } from "react-native-flash-message";
 import { useRegisterUserMutation } from "../app/feature/user/apiSlice";
 import { StatusBar } from "expo-status-bar";
-
+import { useHeaderHeight } from "@react-navigation/elements";
 
 export default function SignUp() {
-  const [registerUser, {isLoading}] = useRegisterUserMutation()
+  const [registerUser, { isLoading }] = useRegisterUserMutation();
   const navigation = useNavigation();
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [username, setUsername] = React.useState("");
+  const headerHeight = useHeaderHeight();
+
   const handlePress = async () => {
     if (!username.trim() || !email.trim() || !password.trim()) {
       alert("Please Fill All Fields");
     } else {
-      try{
-        const user = { email, username, password}
-      const response = await registerUser(user).unwrap();
-      console.log(response)
+      try {
+        const user = { email, username, password };
+        const response = await registerUser(user).unwrap();
+        console.log(response);
         showMessage({
           message: "Sign In Success",
           description: response.message,
@@ -29,59 +38,76 @@ export default function SignUp() {
           icon: "success",
         });
         navigation.navigate("login");
-      } catch(err){
-        console.log(err)
+      } catch (err) {
         showMessage({
           message: err.message || err.data.message,
           type: "danger",
           icon: "danger",
         });
       }
-       
     }
   };
   return (
     <SafeAreaView>
-            <StatusBar style="light" backgroundColor="#0B141A" />
+      <StatusBar style="light" backgroundColor="#0B141A" />
 
-      <Container>
-        <LogoCon></LogoCon>
-        <TextCon>
-          <HeadText style={{color:'white'}}>Sign Up to ChatWave Social App</HeadText>
-          <View style={{ display: "flex", flexDirection: "row", marginTop: 5 }}>
-            <BodyText style={{ color: "white" }}>Returning User?</BodyText>
-            <TouchableOpacity onPress={() => navigation.navigate("login")}>
-              <BodyText
-                style={{ color: "#005c4b", marginLeft: 5, fontWeight: 600 }}
-              >
-                Sign In
-              </BodyText>
-            </TouchableOpacity>
-          </View>
-        </TextCon>
-        <FormCon>
-          <Input placeholder="Username"
-          placeholderTextColor="white"
-          value={username} onChangeText={setUsername} />
-          <Input placeholder="Email"
-          placeholderTextColor="white"
-          value={email} onChangeText={setEmail} />
-          <Input
-            placeholder="Password"
-            placeholderTextColor="white"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry={true}
-          />
-          <SubmitBtn onPress={handlePress}>
-           {
-             isLoading ? <ActivityIndicator color="#fff" /> : <BodyText style={{ color: "white", fontSize: 16 }}>
-             Sign Up
-           </BodyText>
-           }
-          </SubmitBtn>
-        </FormCon>
-      </Container>
+      <KeyboardAvoidingView
+        style={{ height: "100%", backgroundColor: "#0b141a" }}
+        contentContainerStyle={{ backgroundColor: "#0b141a" }}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={headerHeight}
+      >
+        <Container>
+          <LogoCon></LogoCon>
+          <TextCon>
+            <HeadText style={{ color: "white" }}>
+              Sign Up to ChatWave Social App
+            </HeadText>
+            <View
+              style={{ display: "flex", flexDirection: "row", marginTop: 5 }}
+            >
+              <BodyText style={{ color: "white" }}>Returning User?</BodyText>
+              <TouchableOpacity onPress={() => navigation.navigate("login")}>
+                <BodyText
+                  style={{ color: "#005c4b", marginLeft: 5, fontWeight: 600 }}
+                >
+                  Sign In
+                </BodyText>
+              </TouchableOpacity>
+            </View>
+          </TextCon>
+          <FormCon>
+            <Input
+              placeholder="Username"
+              placeholderTextColor="white"
+              value={username}
+              onChangeText={setUsername}
+            />
+            <Input
+              placeholder="Email"
+              placeholderTextColor="white"
+              value={email}
+              onChangeText={setEmail}
+            />
+            <Input
+              placeholder="Password"
+              placeholderTextColor="white"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry={true}
+            />
+            <SubmitBtn onPress={handlePress}>
+              {isLoading ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <BodyText style={{ color: "white", fontSize: 16 }}>
+                  Sign Up
+                </BodyText>
+              )}
+            </SubmitBtn>
+          </FormCon>
+        </Container>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
@@ -92,11 +118,10 @@ const Container = styled.KeyboardAvoidingView`
   height: 100%;
   flex-direction: column;
   align-items: center;
-  background-color: #0B141A;
-
+  background-color: #0b141a;
 `;
 const LogoCon = styled.View`
-  margin-top: 60px;
+  margin-top: 40px;
   height: 150px;
   width: 150px;
   background-color: #005c4b;
@@ -107,7 +132,7 @@ const LogoCon = styled.View`
 const TextCon = styled.View`
   height: 50px;
   width: 100%;
-  margin-top: 50px;
+  margin-top: 25px;
   flex-direction: column;
   justify-content: center;
   align-items: center;
@@ -122,7 +147,7 @@ const BodyText = styled.Text`
 `;
 const FormCon = styled.View`
   width: 100%;
-  margin-top: 40px;
+  margin-top: 5px;
 `;
 
 const Input = styled.TextInput`
@@ -132,9 +157,8 @@ const Input = styled.TextInput`
   padding: 10px;
   font-family: "Regular";
   font-size: 15px;
-  margin-top: 30px;
+  margin-top: 15px;
   color: white;
-
 `;
 
 const SubmitBtn = styled.TouchableOpacity`
@@ -144,45 +168,6 @@ const SubmitBtn = styled.TouchableOpacity`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  margin-top: 30px;
+  margin-top: 15px;
   border-radius: 12px;
 `;
-
-// <View className="h-[100%] bg-blue-500  pt-[100px] px-[20px]">
-// <View>
-//   <View className="flex flex-row w-full items-center justify-center">
-//     <Text className=" text-center text-[30px]">Uni</Text>
-//     <Text className=" text-center text-[30px] ">Chat</Text>
-//   </View>
-// </View>
-// <View className="mt-[90px] space-y-[40px]">
-//   <TextInput
-//     className="border-[2px] border-blue-300 h-[60px] px-[10px] rounded-[5px]"
-//
-//   />
-//   <TextInput
-//     className="border-[2px] border-blue-300 h-[60px] px-[10px] rounded-[5px]"
-//     placeholder="Password"
-//
-//     value={password}
-//     onChangeText={setPassword}
-//     placeholderTextColor="white"
-//   />
-//   <TouchableOpacity
-//     className="h-[50px] bg-white flex items-center justify-center rounded-[5px] disabled:bg-gray-200"
-//     onPress={handlePress}
-//   //   disabled={!password || !email}
-//   >
-//     <Text>Sign In</Text>
-//   </TouchableOpacity>
-//   <View className='flex flex-row items-center space-x-[10px] w-full justify-center'>
-//       <Text className=''>
-//           Don't have an account?
-
-//       </Text>
-//       <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
-//               <Text>SignUp</Text>
-//           </TouchableOpacity>
-//   </View>
-// </View>
-// </View>

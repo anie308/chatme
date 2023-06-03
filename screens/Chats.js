@@ -124,7 +124,7 @@ export default function Chats() {
             </>
           )}
         </View>
-        <FloatingMesageIcon />
+        {/* <FloatingMesageIcon /> */}
       </Container>
     </SafeAreaView>
   );

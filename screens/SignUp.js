@@ -7,6 +7,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import { showMessage } from "react-native-flash-message";
 import { useRegisterUserMutation } from "../app/feature/user/apiSlice";
+import { StatusBar } from "expo-status-bar";
 
 
 export default function SignUp() {
@@ -43,15 +44,17 @@ export default function SignUp() {
   };
   return (
     <SafeAreaView>
+            <StatusBar style="light" backgroundColor="#0B141A" />
+
       <Container>
         <LogoCon></LogoCon>
         <TextCon>
-          <HeadText>Sign Up to ChatMe Social App</HeadText>
+          <HeadText style={{color:'white'}}>Sign Up to ChatWave Social App</HeadText>
           <View style={{ display: "flex", flexDirection: "row", marginTop: 5 }}>
-            <BodyText style={{ color: "#6A7185" }}>Returning User?</BodyText>
-            <TouchableOpacity onPress={() => navigation.navigate("")}>
+            <BodyText style={{ color: "white" }}>Returning User?</BodyText>
+            <TouchableOpacity onPress={() => navigation.navigate("login")}>
               <BodyText
-                style={{ color: "#4a86f7", marginLeft: 5, fontWeight: 600 }}
+                style={{ color: "#005c4b", marginLeft: 5, fontWeight: 600 }}
               >
                 Sign In
               </BodyText>
@@ -59,10 +62,15 @@ export default function SignUp() {
           </View>
         </TextCon>
         <FormCon>
-          <Input placeholder="Username" value={username} onChangeText={setUsername} />
-          <Input placeholder="Email" value={email} onChangeText={setEmail} />
+          <Input placeholder="Username"
+          placeholderTextColor="white"
+          value={username} onChangeText={setUsername} />
+          <Input placeholder="Email"
+          placeholderTextColor="white"
+          value={email} onChangeText={setEmail} />
           <Input
             placeholder="Password"
+            placeholderTextColor="white"
             value={password}
             onChangeText={setPassword}
             secureTextEntry={true}
@@ -86,12 +94,14 @@ const Container = styled.View`
   height: 100%;
   flex-direction: column;
   align-items: center;
+  background-color: #0B141A;
+
 `;
 const LogoCon = styled.View`
   margin-top: 60px;
   height: 150px;
   width: 150px;
-  background-color: #4a86f7;
+  background-color: #005c4b;
   border-radius: 75px;
   border: 10px solid #e9edf1;
 `;
@@ -118,19 +128,21 @@ const FormCon = styled.View`
 `;
 
 const Input = styled.TextInput`
-  border: 1.5px solid #4a86f7;
+  border: 1.5px solid #005c4b;
   height: 60px;
   border-radius: 12px;
   padding: 10px;
   font-family: "Regular";
   font-size: 15px;
   margin-top: 30px;
+  color: white;
+
 `;
 
 const SubmitBtn = styled.TouchableOpacity`
   height: 60px;
   width: 100%;
-  background-color: #4a86f7;
+  background-color: #005c4b;
   flex-direction: column;
   justify-content: center;
   align-items: center;

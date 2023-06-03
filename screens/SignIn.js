@@ -9,10 +9,9 @@ import { showMessage } from "react-native-flash-message";
 import { useLoginUserMutation } from "../app/feature/user/apiSlice";
 import { ActivityIndicator } from "react-native";
 import { useDispatch } from "react-redux";
-import { setUser } from "../app/feature/user/authSlice";
+import { StatusBar } from "expo-status-bar";
 
 export default function SignIn() {
-  const dispatch = useDispatch();
   const [loginUser, { isLoading }] = useLoginUserMutation();
   const navigation = useNavigation();
   const [username, setUsername] = React.useState("");
@@ -30,8 +29,7 @@ export default function SignIn() {
 
       const user = { username: trimmedUsername, password: trimmedPassword };
       const response = await loginUser(user).unwrap();
-      dispatch(setUser(response.accessToken));
-      console.log(response.accessToken);
+     
       await AsyncStorage.setItem("token", response.accessToken).then(() => {
         showMessage({
           message: "Success",
@@ -39,6 +37,8 @@ export default function SignIn() {
           type: "success",
         });
         navigation.navigate("chats");
+        setPassword("");
+        setUsername("");
       });
     } catch (err) {
       console.warn(err);
@@ -47,15 +47,16 @@ export default function SignIn() {
 
   return (
     <SafeAreaView>
+      <StatusBar style="light" backgroundColor="#0B141A" />
       <Container>
         <LogoCon></LogoCon>
         <TextCon>
-          <HeadText>Sign In to ChatMe Social App</HeadText>
+          <HeadText style={{color: 'white'}}>Sign In to ChatWave Social App</HeadText>
           <View style={{ display: "flex", flexDirection: "row", marginTop: 5 }}>
-            <BodyText style={{ color: "#6A7185" }}>First time here?</BodyText>
+            <BodyText style={{ color: "white" }}>First time here?</BodyText>
             <TouchableOpacity onPress={() => navigation.navigate("sign-up")}>
               <BodyText
-                style={{ color: "#4a86f7", marginLeft: 5, fontWeight: 600 }}
+                style={{ color: "#005c4b", marginLeft: 5, fontWeight: 600 }}
               >
                 Sign Up
               </BodyText>
@@ -65,11 +66,14 @@ export default function SignIn() {
         <FormCon>
           <Input
             placeholder="User Name"
+            placeholderTextColor="white"
             value={username}
             onChangeText={setUsername}
           />
           <Input
             placeholder="Password"
+            placeholderTextColor="white"
+
             value={password}
             onChangeText={setPassword}
             secureTextEntry={true}
@@ -95,13 +99,13 @@ const Container = styled.View`
   height: 100%;
   flex-direction: column;
   align-items: center;
-  background-color: #202c33;
+  background-color: #0B141A;
 `;
 const LogoCon = styled.View`
   margin-top: 60px;
   height: 150px;
   width: 150px;
-  background-color: #4a86f7;
+  background-color: #005c4b;
   border-radius: 75px;
   border: 10px solid #e9edf1;
 `;
@@ -128,13 +132,14 @@ const FormCon = styled.View`
 `;
 
 const Input = styled.TextInput`
-  border: 1.5px solid #4a86f7;
+  border: 1.5px solid #005c4b;
   height: 60px;
   border-radius: 12px;
   padding: 10px;
   font-family: "Regular";
   font-size: 15px;
   margin-top: 30px;
+  color: white;
 `;
 
 const SubmitBtn = styled.TouchableOpacity`

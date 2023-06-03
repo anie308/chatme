@@ -36,8 +36,36 @@ export default function Route() {
   const Stack = createNativeStackNavigator();
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName={`${currUser? "chats": "login"}`}>
-        {!currUser && (
+      <Stack.Navigator initialRouteName={`${currUser ? "chats" : "login"}`}>
+        {currUser ? (
+          <>
+            <Stack.Screen
+              name="chats"
+              options={{ headerShown: false }}
+              component={Chats}
+            />
+
+            <Stack.Screen
+              name="profile"
+              options={{ headerShown: false }}
+              component={Profile}
+            />
+            <Stack.Screen
+              name="camera-screen"
+              options={{
+                headerShown: false,
+              }}
+              component={CameraScreen}
+            />
+            <Stack.Screen
+              name="chat"
+              options={{
+                headerShown: false,
+              }}
+              component={Chat}
+            />
+          </>
+        ) : (
           <>
             <Stack.Screen
               name="login"
@@ -62,31 +90,6 @@ export default function Route() {
             />
           </>
         )}
-        <Stack.Screen
-          name="chats"
-          options={{ headerShown: false }}
-          component={Chats}
-        />
-
-        <Stack.Screen
-          name="profile"
-          options={{ headerShown: false }}
-          component={Profile}
-        />
-        <Stack.Screen
-          name="camera-screen"
-          options={{
-            headerShown: false,
-          }}
-          component={CameraScreen}
-        />
-        <Stack.Screen
-          name="chat"
-          options={{
-            headerShown: false,
-          }}
-          component={Chat}
-        />
       </Stack.Navigator>
     </NavigationContainer>
   );

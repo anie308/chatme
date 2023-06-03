@@ -13,11 +13,12 @@ import {
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import jwt_decode from "jwt-decode";
+import moment from 'moment';
 
 export default function Chat() {
   const [message, setMessages] = useState([]);
-  const scrollRef = useRef();
-  const host = "https://chatwave.onrender.com/api/v1";
+  const scrollRef = useRef(null);
+  const host = "https://chatwave.onrender.com/";
   const socket = useRef();
   const [addMessage, { isSuccess: success }] = useAddMessageMutation();
   const navigation = useNavigation();
@@ -36,6 +37,7 @@ export default function Chat() {
     getParams();
   }, []);
 
+
   useEffect(() => {
     if (token) {
       socket.current = io(host);
@@ -43,6 +45,22 @@ export default function Chat() {
     }
   }, [token]);
 
+  useEffect(() => {
+    if (socket.current) {
+      socket.current.on("msg-recieve", (msg) => {
+        console.log(msg);
+        setArrivalMessage({ fromSelf: false, message: msg });
+      });
+    }
+  });
+
+  useEffect(() => {
+    arrivalMessage && setMessages.push((prev) => [...prev, arrivalMessage]);
+  }, [arrivalMessage]);
+
+  useEffect(() => {
+    scrollRef.current.scrollToEnd({ animated: true, delay: 100 }); // Added delay before scrolling to bottom
+  }, [message]);
   const { data, isSuccess, refetch } = useGetSingleUserQuery(userId);
   const user = data?.data;
 
@@ -61,7 +79,6 @@ export default function Chat() {
     }
   }, [messages]);
 
-
   useEffect(() => {
     refetch();
     get();
@@ -77,34 +94,35 @@ export default function Chat() {
     await addMessage(data).unwrap();
     setMsg("");
 
-    socket.current.emit("send-msg",{
+    socket.current.emit("send-msg", {
       from: token,
       message: msg,
       to: user._id,
-    })
+    });
 
     const msgs = [...message];
-    msgs.push({fromSelf: true, message: msg});
+    msgs.push({ fromSelf: true, message: msg });
     setMessages(msgs);
   };
 
-  useEffect(() => {
-    if(socket.current){
-      socket.current.on("msg-recieve", (msg)=> {
-        console.log({msg})
-        setArrivalMessage({fromSelf:false, message: msg })
-      })
+  const formatMessageTimestamp = (createdAt) => {
+    const now = moment();
+    const messageTime = moment(createdAt);
+
+    if (now.isSame(messageTime, "day")) {
+      // Today
+      return messageTime.format("h:mm A");
+    } else if (now.subtract(1, "day").isSame(messageTime, "day")) {
+      // Yesterday
+      return `Yesterday, ${messageTime.format("h:mm A")}`;
+    } else if (now.isSame(messageTime, "week")) {
+      // This week
+      return messageTime.format("dddd, h:mm A");
+    } else {
+      // Prior to this week
+      return messageTime.format("MMM DD, YYYY, h:mm A");
     }
-  })
-
-  useEffect(() => {
-    arrivalMessage  && setMessages.push((prev)=> [...prev, arrivalMessage])
-  }, [arrivalMessage])
-
-
-  useEffect(()=> {
-    scrollRef.current?.scrollIntoView({behavior: "smooth"})
-  }, [message])
+  };
 
   return (
     <SafeAreaView>
@@ -138,19 +156,29 @@ export default function Chat() {
             </TouchableOpacity>
           </ActionCon>
         </HeaderCon>
-        <View style={{ height: "100%", backgroundColor: "#111B21", flex: 1}}>
-        <ScrollView style={{ height: "100%" }}>
-          <MessageCon>
-            <MessageView>
-              {successMessages &&
-                message?.map((msg, index) => (
-                  <MessageText fromSelf={msg?.fromSelf} key={index}>
-                    {msg?.message}
-                  </MessageText>
-                ))}
-            </MessageView>
-          </MessageCon>
-        </ScrollView>
+        <View style={{ height: "100%", backgroundColor: "#111B21", flex: 1 }}>
+          <ScrollView ref={scrollRef} style={{ height: "100%" }}>
+            <MessageCon>
+              <MessageView>
+                {successMessages &&
+                  message?.map(({message, fromSelf, createdAt}, index) => (
+                    <MsgCon key={index} fromSelf={fromSelf}>
+                      <MessageText>{message}</MessageText>
+                      {fromSelf && (
+                        <CheckCon fromSelf={fromSelf}>
+                          <Text style={{fontSize:10, color:'#A6ABAD', marginRight:3}}>{ formatMessageTimestamp(createdAt)}</Text>
+                          <Ionicons
+                            name="checkmark-done-outline"
+                            size={16}
+                            color="#3EA5C3"
+                          />
+                        </CheckCon>
+                      )}
+                    </MsgCon>
+                  ))}
+              </MessageView>
+            </MessageCon>
+          </ScrollView>
         </View>
         <InputCon>
           <Input
@@ -175,7 +203,7 @@ export default function Chat() {
 const Container = styled.View`
   height: 100%;
   width: 100%;
-  background-color: #111B21;
+  background-color: #111b21;
 `;
 
 const HeaderCon = styled.View`
@@ -208,7 +236,6 @@ const ActionCon = styled.View`
 `;
 
 const InputCon = styled.View`
-  
   width: 99%;
   height: 55px;
   border-radius: 30px;
@@ -228,7 +255,6 @@ const Input = styled.TextInput`
   padding: 0 10px;
   color: white;
   font-family: "Medium";
-  
 `;
 
 const IconCon = styled.TouchableOpacity`
@@ -245,15 +271,13 @@ const MessageView = styled.View`
   margin: 10px 0;
 `;
 
-const MessageText = styled.Text`
-  padding: 10px;
+const MsgCon = styled.View`
+  padding: 5px 10px;
   background-color: #005c4b;
-  color: white;
-  font-family: "Medium";
-  font-size: 15px;
-  margin-bottom: 10px;
   align-self: ${(props) => (props.fromSelf ? "flex-end" : "flex-start")};
+  margin-bottom: 10px;
   max-width: 80%;
+
   overflow: hidden;
   border-bottom-right-radius: 10px;
   border-bottom-left-radius: 10px;
@@ -261,6 +285,16 @@ const MessageText = styled.Text`
   border-top-right-radius: ${(props) => (props.fromSelf ? "0px" : "10px")};
 `;
 
+const CheckCon = styled.View`
+  flex-direction: row;
+  align-items: center;
+  align-self: ${(props) => (props.fromSelf ? "flex-end" : "flex-start")};
+`;
+const MessageText = styled.Text`
+  color: white;
+  font-family: "Medium";
+  font-size: 13px;
+`;
 
 //position: absolute;
 //bottom: 10px;

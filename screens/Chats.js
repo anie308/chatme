@@ -12,21 +12,28 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { StatusBar } from "expo-status-bar";
 
 export default function Chats() {
+  const [drop, setDrop] = useState(true);
   const navigation = useNavigation();
   const [token, setToken] = useState(null);
   useEffect(() => {
     const getToken = async () => {
-      const token = await AsyncStorage.getItem("token")
+      const token = await AsyncStorage.getItem("token");
       const decodedId = jwt_decode(token).id;
-       setToken(decodedId);
+      setToken(decodedId);
     };
     getToken();
   }, []);
   const { data, error, isLoading, refetch } = useGetAllUsersQuery(token);
   useEffect(() => {
-    refetch(token)
-  },[]);
+    refetch(token);
+  }, []);
   const recentChats = data?.data;
+
+  const handleLogout = async () => {
+    await AsyncStorage.removeItem("token").then(() => {
+      navigation.navigate("login");
+    });
+  };
 
   return (
     <SafeAreaView>
@@ -34,6 +41,11 @@ export default function Chats() {
       <Container>
         <Header>
           <ChatText>Chats</ChatText>
+          <IconCon>
+            <TouchableOpacity onPress={handleLogout}>
+              <AntDesign name="logout" size={24} color="white" />
+            </TouchableOpacity>
+          </IconCon>
         </Header>
         <View style={{ backgroundColor: "#111B21", height: "100%" }}>
           {isLoading ? (
@@ -161,4 +173,18 @@ const MessageCon = styled.View`
 const Date = styled.View`
   flex-direction: column;
   align-items: flex-end;
+`;
+
+const IconCon = styled.View`
+  postion: relative;
+`;
+
+const DropCon = styled.View`
+  position: absolute;
+  top: 35px;
+  padding: 10px;
+  width: 100px;
+  background-color: white;
+  right: 10px;
+  z-index: 5;
 `;

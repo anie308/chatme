@@ -1,6 +1,5 @@
-import { View, Text, TextInput, TouchableOpacity } from "react-native";
+import { View,  TouchableOpacity } from "react-native";
 import React from "react";
-import { signIn } from "../firebase";
 import styled from "styled-components/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -8,7 +7,6 @@ import { useNavigation } from "@react-navigation/native";
 import { showMessage } from "react-native-flash-message";
 import { useLoginUserMutation } from "../app/feature/user/apiSlice";
 import { ActivityIndicator } from "react-native";
-import { useDispatch } from "react-redux";
 import { StatusBar } from "expo-status-bar";
 
 export default function SignIn() {
@@ -29,17 +27,16 @@ export default function SignIn() {
 
       const user = { username: trimmedUsername, password: trimmedPassword };
       const response = await loginUser(user).unwrap();
-     
-      await AsyncStorage.setItem("token", response.accessToken).then(() => {
-        showMessage({
-          message: "Success",
-          description: "You have successfully logged in",
-          type: "success",
-        });
-        navigation.navigate("chats");
-        setPassword("");
-        setUsername("");
+      setPassword("");
+      setUsername("");
+
+      await AsyncStorage.setItem("token", response.accessToken);
+      showMessage({
+        message: "Success",
+        description: "You have successfully logged in",
+        type: "success",
       });
+      navigation.navigate("chats");
     } catch (err) {
       console.warn(err);
     }
@@ -51,7 +48,9 @@ export default function SignIn() {
       <Container>
         <LogoCon></LogoCon>
         <TextCon>
-          <HeadText style={{color: 'white'}}>Sign In to ChatWave Social App</HeadText>
+          <HeadText style={{ color: "white" }}>
+            Sign In to ChatWave Social App
+          </HeadText>
           <View style={{ display: "flex", flexDirection: "row", marginTop: 5 }}>
             <BodyText style={{ color: "white" }}>First time here?</BodyText>
             <TouchableOpacity onPress={() => navigation.navigate("sign-up")}>
@@ -73,7 +72,6 @@ export default function SignIn() {
           <Input
             placeholder="Password"
             placeholderTextColor="white"
-
             value={password}
             onChangeText={setPassword}
             secureTextEntry={true}
@@ -93,13 +91,13 @@ export default function SignIn() {
   );
 }
 
-const Container = styled.View`
+const Container = styled.KeyboardAvoidingView`
   padding: 20px;
   display: flex;
   height: 100%;
   flex-direction: column;
   align-items: center;
-  background-color: #0B141A;
+  background-color: #0b141a;
 `;
 const LogoCon = styled.View`
   margin-top: 60px;

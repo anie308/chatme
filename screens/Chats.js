@@ -30,9 +30,8 @@ export default function Chats() {
   const recentChats = data?.data;
 
   const handleLogout = async () => {
-    await AsyncStorage.removeItem("token").then(() => {
+    await AsyncStorage.removeItem("token")
       navigation.navigate("login");
-    });
   };
 
   return (

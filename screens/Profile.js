@@ -4,17 +4,12 @@ import { useState } from "react";
 import { useEffect } from "react";
 import { TouchableOpacity } from "react-native";
 import styled from "styled-components/native";
-import { updateProfile } from "firebase/auth";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { doc, setDoc } from "firebase/firestore";
-// import { showMessage, hideMessage } from "react-native-flash-message";
 import {
   Fontisto,
   MaterialCommunityIcons,
   FontAwesome,
 } from "@expo/vector-icons";
-import { auth, db } from "../firebase";
-import { uploadImage } from "../utils";
 
 export default function Profile(props) {
   const [displayName, setDisplayName] = useState("");
@@ -26,16 +21,14 @@ export default function Profile(props) {
   useEffect(() => {
     if (props.route.params?.imagePath) {
       setSelectedImage(props.route.params.imagePath);
-      setUser(auth.currentUser);
     }
-  }, [props.route.params?.imagePath, auth.currentUser]);
+  }, [props.route.params?.imagePath]);
 
   useEffect(() => {
     console.log(selectedImage);
   }, [selectedImage, user]);
 
 
-  console.log(user)
 
   const handlePress = async () => {
     if (!displayName.trim() || !description.trim()) {
@@ -61,15 +54,8 @@ export default function Profile(props) {
         userData.photoUrl = photoUrl;
       }
 
-      await Promise.all([
-      updateProfile(user, userData),
-      setDoc(doc(db, "users", user.uid), { ...userData, uid: user.uid }),
-    ]);
-      // showMessage({
-      //   message: "Profile Updated",
-      //   type: "success",
-      //   icon: "success",
-      // });
+      
+      
 
 
     navigation.navigate("chats");
@@ -82,11 +68,7 @@ export default function Profile(props) {
       <Container>
         <TopNav>
           <BackIcon>
-            {/* <Ionicons
-              name="arrow-back-circle-outline"
-              size={28}
-              color="black"
-            /> */}
+           
            <TouchableOpacity onPress={()=> navigation.goBack()}>
            <FontAwesome name="long-arrow-left" size={28} color="black" />
            </TouchableOpacity>

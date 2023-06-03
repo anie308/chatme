@@ -1,8 +1,6 @@
 import { View, Text, TextInput, TouchableOpacity, ActivityIndicator } from "react-native";
 import React from "react";
-import {signUp } from "../firebase";
 import styled from "styled-components/native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import { showMessage } from "react-native-flash-message";
@@ -88,7 +86,7 @@ export default function SignUp() {
   );
 }
 
-const Container = styled.View`
+const Container = styled.KeyboardAvoidingView`
   padding: 20px;
   display: flex;
   height: 100%;

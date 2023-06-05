@@ -13,18 +13,19 @@ import {
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import jwt_decode from "jwt-decode";
-import moment from 'moment';
+import moment from "moment";
 
 export default function Chat() {
-  const [message, setMessages] = useState([]);
+  const [messages, setMessages] = useState([]);
   const scrollRef = useRef(null);
-  const host = "https://chatwave.onrender.com/";
+  // const host = "https://chatwave.onrender.com/";
+  const host = "ws://172.16.14.13:5000";
   const socket = useRef();
   const [addMessage, { isSuccess: success }] = useAddMessageMutation();
   const navigation = useNavigation();
   const [msg, setMsg] = useState("");
   const [token, setToken] = useState(null);
-  const [arrivalMessage, setArrivalMessage] = useState(null);
+  // const [arrivalMessage, setArrivalMessage] = useState(null);
   const route = useRoute();
   const { userId } = route.params;
 
@@ -37,72 +38,74 @@ export default function Chat() {
     getParams();
   }, []);
 
-
   useEffect(() => {
     if (token) {
-      socket.current = io(host);
-      socket.current.emit("add-user", token);
-    }
-  }, [token]);
+      socket.current = io(host, { path: "/ws" });
+      socket.current.on("connect", () => {
+        console.log("Connected to socket");
+        socket.current.emit("add-user", token);
 
-  useEffect(() => {
-    if (socket.current) {
-      socket.current.on("msg-recieve", (msg) => {
-        console.log(msg);
-        setArrivalMessage({ fromSelf: false, message: msg });
+        socket.current.on("msg-recieve", (msg) => {
+          console.log("Received msg:", msg);
+          setMessages((messages) => messages.concat(msg));
+          // setArrivalMessage({ fromSelf: false, message: msg });
+        });
       });
     }
-  });
+    return () => {
+      if (socket.current) socket.current.disconnect();
+    };
+  }, [token]);
 
-  useEffect(() => {
-    arrivalMessage && setMessages.push((prev) => [...prev, arrivalMessage]);
-  }, [arrivalMessage]);
+  // useEffect(() => {
+  //   arrivalMessage && setMessages((prev) => [...prev, arrivalMessage]);
+  // }, [arrivalMessage]);
 
   useEffect(() => {
     scrollRef.current.scrollToEnd({ animated: true, delay: 100 }); // Added delay before scrolling to bottom
-  }, [message]);
-  const { data, isSuccess, refetch } = useGetSingleUserQuery(userId);
+  }, [messages]);
+  const {
+    data,
+    isSuccess,
+    refetch: refetchUser,
+  } = useGetSingleUserQuery(userId);
   const user = data?.data;
 
   const {
-    data: messages,
-    isSuccess: successMessages,
-    refetch: get,
+    data: apiMessages,
+    isSuccess: successMessage,
+    refetch: refetchMessages,
   } = useGetMessagesQuery({
     from: token,
     to: userId,
   });
 
   useEffect(() => {
-    if (messages) {
-      setMessages(messages);
+    if (apiMessages) {
+      setMessages(apiMessages);
     }
-  }, [messages]);
+  }, [apiMessages]);
 
   useEffect(() => {
-    refetch();
-    get();
-  }, []);
+    refetchUser();
+    refetchMessages();
+  }, [refetchUser, refetchMessages]);
 
   const handleSend = async () => {
-    const data = {
+    if (!socket.current) return;
+    if (!msg.trim()) return;
+
+    const payload = {
       from: token,
       message: msg,
       to: user._id,
     };
 
-    await addMessage(data).unwrap();
+    // await addMessage(data).unwrap();
     setMsg("");
 
-    socket.current.emit("send-msg", {
-      from: token,
-      message: msg,
-      to: user._id,
-    });
-
-    const msgs = [...message];
-    msgs.push({ fromSelf: true, message: msg });
-    setMessages(msgs);
+    socket.current.emit("msg-send", payload);
+    setMessages(messages.concat({ fromSelf: true, message: msg }));
   };
 
   const formatMessageTimestamp = (createdAt) => {
@@ -138,7 +141,7 @@ export default function Chat() {
               <Text
                 style={{
                   color: "white",
-                  fontFamily: "Medium",
+                  // fontFamily: "Medium",
                   fontSize: 18,
                   marginLeft: 14,
                 }}
@@ -160,13 +163,21 @@ export default function Chat() {
           <ScrollView ref={scrollRef} style={{ height: "100%" }}>
             <MessageCon>
               <MessageView>
-                {successMessages &&
-                  message?.map(({message, fromSelf, createdAt}, index) => (
+                {successMessage &&
+                  messages.map(({ message, fromSelf, createdAt }, index) => (
                     <MsgCon key={index} fromSelf={fromSelf}>
                       <MessageText>{message}</MessageText>
                       {fromSelf && (
                         <CheckCon fromSelf={fromSelf}>
-                          <Text style={{fontSize:10, color:'#A6ABAD', marginRight:3}}>{ formatMessageTimestamp(createdAt)}</Text>
+                          <Text
+                            style={{
+                              fontSize: 10,
+                              color: "#A6ABAD",
+                              marginRight: 3,
+                            }}
+                          >
+                            {formatMessageTimestamp(createdAt)}
+                          </Text>
                           <Ionicons
                             name="checkmark-done-outline"
                             size={16}

@@ -47,73 +47,67 @@ export default function Route() {
   //     });
   //   }
   // }, []);
-  
-
-
 
   const Stack = createNativeStackNavigator();
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName={`${currUser ? "chats" : "login"}`}>
-       {
-          currUser ? (
-            <>
-             <Stack.Screen
-        readCount={unreadCount} // Pass the unread count to the Chats screen
-          name="chats"
-          options={{ headerShown: false }}
-          component={Chats}
-        />
-
-        <Stack.Screen
-          name="profile"
-          options={{ headerShown: false }}
-          component={Profile}
-        />
-        <Stack.Screen
-          name="camera-screen"
-          options={{
-            headerShown: false,
-          }}
-          component={CameraScreen}
-        />
-        <Stack.Screen
-          name="chat"
-          options={{
-            headerShown: false,
-          }}
-          component={Chat}
-        />
-            </>
-          ): (
-            <>
+      <Stack.Navigator>
+        {currUser ? (
+          <>
             <Stack.Screen
-          name="login"
-          options={{
-            headerShown: false,
-          }}
-          component={SignIn}
-        />
-        <Stack.Screen
-          name="sign-up"
-          options={{
-            headerShown: false,
-          }}
-          component={SignUp}
-        />
-        <Stack.Screen
-          name="avatar"
-          options={{
-            headerShown: false,
-          }}
-          component={Avatar}
-        />
-            
-            </>
-          )
-       }
+              name="chats"
+              options={{ headerShown: false }}
+              component={Chats}
+              token={currUser}
+              setCurrUser={setCurrUser}
+            />
 
-        
+            <Stack.Screen
+              name="profile"
+              options={{ headerShown: false }}
+              component={Profile}
+            />
+            <Stack.Screen
+              name="camera-screen"
+              options={{
+                headerShown: false,
+              }}
+              component={CameraScreen}
+            />
+            <Stack.Screen
+              token={currUser}
+              name="chat"
+              options={{
+                headerShown: false,
+              }}
+              component={Chat}
+            />
+          </>
+        ) : (
+          <>
+            <Stack.Screen
+              name="login"
+              options={{
+                headerShown: false,
+              }}
+              component={SignIn}
+            />
+            <Stack.Screen
+              name="sign-up"
+              options={{
+                headerShown: false,
+              }}
+              component={SignUp}
+            />
+            <Stack.Screen
+              name="avatar"
+              options={{
+                headerShown: false,
+              }}
+              component={Avatar}
+            />
+          </>
+        )}
       </Stack.Navigator>
     </NavigationContainer>
   );

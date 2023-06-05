@@ -18,8 +18,8 @@ import moment from "moment";
 export default function Chat() {
   const [messages, setMessages] = useState([]);
   const scrollRef = useRef(null);
-  // const host = "https://chatwave.onrender.com/";
-  const host = "ws://172.16.14.13:5000";
+  const host = "https://chatwave.onrender.com/";
+  // const host = "ws://172.16.14.13:5000";
   const socket = useRef();
   const [addMessage, { isSuccess: success }] = useAddMessageMutation();
   const navigation = useNavigation();
@@ -113,16 +113,16 @@ export default function Chat() {
       console.log("socket connected");
       socket.current.on("msg-recieve", (msg) => {
         console.log({ msg })
-        setArrivalMessage({ fromSelf: false, message: msg });
+        // setArrivalMessage({ fromSelf: false, message: msg });
       });
     }
   });
 
-  console.log(arrivalMessage)
+  // console.log(arrivalMessage)
 
-  useEffect(() => {
-    arrivalMessage && setMessages.push((prev) => [...prev, arrivalMessage]);
-  }, [arrivalMessage]);
+  // useEffect(() => {
+  //   arrivalMessage && setMessages.push((prev) => [...prev, arrivalMessage]);
+  // }, [arrivalMessage]);
 
   const formatMessageTimestamp = (createdAt) => {
     const now = moment();

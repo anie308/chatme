@@ -31,7 +31,7 @@ export default function Chats() {
 
   const handleLogout = async () => {
     await AsyncStorage.removeItem("token")
-      navigation.navigate("login");
+   navigation.navigate("login");
   };
 
   return (

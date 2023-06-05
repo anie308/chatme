@@ -18,14 +18,13 @@ import moment from "moment";
 export default function Chat() {
   const [messages, setMessages] = useState([]);
   const scrollRef = useRef(null);
-  const host = "https://chatwave.onrender.com/";
+  const host = "wss://chatwave.onrender.com";
   // const host = "ws://172.16.14.13:5000";
   const socket = useRef();
   const [addMessage, { isSuccess: success }] = useAddMessageMutation();
   const navigation = useNavigation();
   const [msg, setMsg] = useState("");
   const [token, setToken] = useState(null);
-  // const [arrivalMessage, setArrivalMessage] = useState(null);
   const route = useRoute();
   const { userId } = route.params;
 
@@ -48,7 +47,6 @@ export default function Chat() {
         socket.current.on("msg-recieve", (msg) => {
           console.log("Received msg:", msg);
           setMessages((messages) => messages.concat(msg));
-          // setArrivalMessage({ fromSelf: false, message: msg });
         });
       });
     }
@@ -57,9 +55,6 @@ export default function Chat() {
     };
   }, [token]);
 
-  // useEffect(() => {
-  //   arrivalMessage && setMessages((prev) => [...prev, arrivalMessage]);
-  // }, [arrivalMessage]);
 
   useEffect(() => {
     scrollRef.current.scrollToEnd({ animated: true, delay: 100 }); // Added delay before scrolling to bottom
@@ -101,10 +96,10 @@ export default function Chat() {
       to: user._id,
     };
 
-    // await addMessage(data).unwrap();
     setMsg("");
 
     socket.current.emit("msg-send", payload);
+    console.log(payload)
     setMessages(messages.concat({ fromSelf: true, message: msg }));
   };
 
@@ -118,11 +113,6 @@ export default function Chat() {
     }
   });
 
-  // console.log(arrivalMessage)
-
-  // useEffect(() => {
-  //   arrivalMessage && setMessages.push((prev) => [...prev, arrivalMessage]);
-  // }, [arrivalMessage]);
 
   const formatMessageTimestamp = (createdAt) => {
     const now = moment();
@@ -157,7 +147,6 @@ export default function Chat() {
               <Text
                 style={{
                   color: "white",
-                  // fontFamily: "Medium",
                   fontSize: 18,
                   marginLeft: 14,
                 }}
@@ -323,5 +312,4 @@ const MessageText = styled.Text`
   font-size: 13px;
 `;
 
-//position: absolute;
-//bottom: 10px;
+

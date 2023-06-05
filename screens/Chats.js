@@ -5,14 +5,12 @@ import styled from "styled-components/native";
 import { AntDesign } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
-import FloatingMesageIcon from "../components/FloatingMessages";
 import { useEffect, useState } from "react";
 import { useGetAllUsersQuery } from "../app/feature/user/apiSlice";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { StatusBar } from "expo-status-bar";
 
 export default function Chats() {
-  const [drop, setDrop] = useState(true);
   const navigation = useNavigation();
   const [token, setToken] = useState(null);
   useEffect(() => {
@@ -46,17 +44,17 @@ export default function Chats() {
             </TouchableOpacity>
           </IconCon>
         </Header>
-        <View style={{ backgroundColor: "#111B21", height: "100%" }}>
+        <View style={{ backgroundColor: "#111B21", height: "100%",  }}>
           {isLoading ? (
-            <View>
-              <ActivityIndicator size="large" color="blue" />
-              <Text>Loading..</Text>
+            <View style={{flexDirection: "column", justifyContent: 'center', alignItems: 'center'}}>
+              <ActivityIndicator size="large" color="white" />
+              <Text  style={{color: 'white', fontFamily: "Medium", fontSize: 20}}>Loading..</Text>
             </View>
           ) : (
             <>
               {error ? (
-                <View>
-                  <Text>Something went wrong</Text>
+                <View style={{ backgroundColor: "#111B21", height: "100%", flexDirection: column, justifyContent: 'center', alignItems: 'center'}}>
+                  <Text style={{color: 'white', fontSize: 20, fontFamily: 'Medium'}}>Something went wrong</Text>
                 </View>
               ) : (
                 <View>

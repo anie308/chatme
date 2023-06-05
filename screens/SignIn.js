@@ -4,7 +4,7 @@ import {
   KeyboardAvoidingView,
   ScrollView,
 } from "react-native";
-import React from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -21,6 +21,17 @@ export default function SignIn() {
   const navigation = useNavigation();
   const [username, setUsername] = React.useState("");
   const [password, setPassword] = React.useState("");
+
+  useEffect(() => {
+    const getToken = async () => {
+      const token = await AsyncStorage.getItem("token");
+      if(token) {
+        navigation.navigate("chats");
+      }
+    };
+
+    getToken();
+  });
 
   const handlePress = async () => {
     try {

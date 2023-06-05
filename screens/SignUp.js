@@ -29,8 +29,7 @@ export default function SignUp() {
     } else {
       try {
         const user = { email, username, password };
-        const response = await registerUser(user).unwrap();
-        console.log(response);
+        const response = await registerUser(user).unwrap().catch(err => console.warn(err));
         showMessage({
           message: "Sign In Success",
           description: response.message,

@@ -18,13 +18,14 @@ import moment from "moment";
 export default function Chat() {
   const [messages, setMessages] = useState([]);
   const scrollRef = useRef(null);
-  const host = "https://chatwave.onrender.com/";
+  // const host = "https://chatwave.onrender.com/";
+  const host = "ws://172.16.14.13:5000";
   const socket = useRef();
   const [addMessage, { isSuccess: success }] = useAddMessageMutation();
   const navigation = useNavigation();
   const [msg, setMsg] = useState("");
   const [token, setToken] = useState(null);
-  const [arrivalMessage, setArrivalMessage] = useState(null);
+  // const [arrivalMessage, setArrivalMessage] = useState(null);
   const route = useRoute();
   const { userId } = route.params;
 
@@ -39,62 +40,72 @@ export default function Chat() {
 
   useEffect(() => {
     if (token) {
-      socket.current = io(host);
-      socket.current.emit("add-user", token);
+      socket.current = io(host, { path: "/ws" });
+      socket.current.on("connect", () => {
+        console.log("Connected to socket");
+        socket.current.emit("add-user", token);
+
+        socket.current.on("msg-recieve", (msg) => {
+          console.log("Received msg:", msg);
+          setMessages((messages) => messages.concat(msg));
+          // setArrivalMessage({ fromSelf: false, message: msg });
+        });
+      });
     }
+    return () => {
+      if (socket.current) socket.current.disconnect();
+    };
   }, [token]);
 
   // useEffect(() => {
-  //   scrollRef.current.scrollToEnd({ animated: true, delay: 100 }); // Added delay before scrolling to bottom
-  // }, [messages]);
-  const { data, isSuccess, refetch } = useGetSingleUserQuery(userId);
+  //   arrivalMessage && setMessages((prev) => [...prev, arrivalMessage]);
+  // }, [arrivalMessage]);
+
+  useEffect(() => {
+    scrollRef.current.scrollToEnd({ animated: true, delay: 100 }); // Added delay before scrolling to bottom
+  }, [messages]);
+  const {
+    data,
+    isSuccess,
+    refetch: refetchUser,
+  } = useGetSingleUserQuery(userId);
   const user = data?.data;
 
   const {
-    data: userMessages,
-    isSuccess: successMessages,
-    refetch: get,
+    data: apiMessages,
+    isSuccess: successMessage,
+    refetch: refetchMessages,
   } = useGetMessagesQuery({
     from: token,
     to: userId,
   });
 
   useEffect(() => {
-    if (userMessages) {
-      setMessages(userMessages);
+    if (apiMessages) {
+      setMessages(apiMessages);
     }
-  }, [userMessages]);
+  }, [apiMessages]);
 
   useEffect(() => {
-    if (token) {
-      refetch();
-      get();
-    }
-  }, []);
+    refetchUser();
+    refetchMessages();
+  }, [refetchUser, refetchMessages]);
 
   const handleSend = async () => {
-    const data = {
+    if (!socket.current) return;
+    if (!msg.trim()) return;
+
+    const payload = {
       from: token,
       message: msg,
       to: user._id,
     };
 
-    await addMessage(data).unwrap();
+    // await addMessage(data).unwrap();
     setMsg("");
 
-    socket.current.emit("send-msg", {
-      from: token,
-      message: msg,
-      to: user._id,
-    });
-
-    const msgs = [...messages];
-    msgs.push({
-      fromSelf: true,  
-      message: msg,
-      createdAt: new Date().toISOString(),
-    });
-    setMessages(msgs);
+    socket.current.emit("msg-send", payload);
+    setMessages(messages.concat({ fromSelf: true, message: msg }));
   };
 
   useEffect(() => {
@@ -146,7 +157,7 @@ export default function Chat() {
               <Text
                 style={{
                   color: "white",
-                  fontFamily: "Medium",
+                  // fontFamily: "Medium",
                   fontSize: 18,
                   marginLeft: 14,
                 }}
@@ -168,13 +179,21 @@ export default function Chat() {
           <ScrollView ref={scrollRef} style={{ height: "100%" }}>
             <MessageCon>
               <MessageView>
-                {successMessages &&
-                  messages?.map(({ message, fromSelf, createdAt }, index) => (
+                {successMessage &&
+                  messages.map(({ message, fromSelf, createdAt }, index) => (
                     <MsgCon key={index} fromSelf={fromSelf}>
                       <MessageText>{message}</MessageText>
                       {fromSelf && (
                         <CheckCon fromSelf={fromSelf}>
-                          {/* <Text style={{fontSize:10, color:'#A6ABAD', marginRight:3}}>{ formatMessageTimestamp(createdAt)}</Text> */}
+                          <Text
+                            style={{
+                              fontSize: 10,
+                              color: "#A6ABAD",
+                              marginRight: 3,
+                            }}
+                          >
+                            {formatMessageTimestamp(createdAt)}
+                          </Text>
                           <Ionicons
                             name="checkmark-done-outline"
                             size={16}

@@ -13,10 +13,10 @@ import {
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import jwt_decode from "jwt-decode";
-import moment from 'moment';
+import moment from "moment";
 
 export default function Chat() {
-  const [message, setMessages] = useState([]);
+  const [messages, setMessages] = useState([]);
   const scrollRef = useRef(null);
   const host = "https://chatwave.onrender.com/";
   const socket = useRef();
@@ -37,7 +37,6 @@ export default function Chat() {
     getParams();
   }, []);
 
-
   useEffect(() => {
     if (token) {
       socket.current = io(host);
@@ -45,27 +44,14 @@ export default function Chat() {
     }
   }, [token]);
 
-  useEffect(() => {
-    if (socket.current) {
-      socket.current.on("msg-recieve", (msg) => {
-        console.log(msg);
-        setArrivalMessage({ fromSelf: false, message: msg });
-      });
-    }
-  });
-
-  useEffect(() => {
-    arrivalMessage && setMessages.push((prev) => [...prev, arrivalMessage]);
-  }, [arrivalMessage]);
-
-  useEffect(() => {
-    scrollRef.current.scrollToEnd({ animated: true, delay: 100 }); // Added delay before scrolling to bottom
-  }, [message]);
+  // useEffect(() => {
+  //   scrollRef.current.scrollToEnd({ animated: true, delay: 100 }); // Added delay before scrolling to bottom
+  // }, [messages]);
   const { data, isSuccess, refetch } = useGetSingleUserQuery(userId);
   const user = data?.data;
 
   const {
-    data: messages,
+    data: userMessages,
     isSuccess: successMessages,
     refetch: get,
   } = useGetMessagesQuery({
@@ -74,14 +60,16 @@ export default function Chat() {
   });
 
   useEffect(() => {
-    if (messages) {
-      setMessages(messages);
+    if (userMessages) {
+      setMessages(userMessages);
     }
-  }, [messages]);
+  }, [userMessages]);
 
   useEffect(() => {
-    refetch();
-    get();
+    if (token) {
+      refetch();
+      get();
+    }
   }, []);
 
   const handleSend = async () => {
@@ -100,10 +88,30 @@ export default function Chat() {
       to: user._id,
     });
 
-    const msgs = [...message];
-    msgs.push({ fromSelf: true, message: msg });
+    const msgs = [...messages];
+    msgs.push({
+      fromSelf: true,  
+      message: msg,
+      createdAt: new Date().toISOString(),
+    });
     setMessages(msgs);
   };
+
+  useEffect(() => {
+    if (socket.current) {
+      console.log("socket connected");
+      socket.current.on("msg-recieve", (msg) => {
+        console.log({ msg })
+        setArrivalMessage({ fromSelf: false, message: msg });
+      });
+    }
+  });
+
+  console.log(arrivalMessage)
+
+  useEffect(() => {
+    arrivalMessage && setMessages.push((prev) => [...prev, arrivalMessage]);
+  }, [arrivalMessage]);
 
   const formatMessageTimestamp = (createdAt) => {
     const now = moment();
@@ -161,12 +169,12 @@ export default function Chat() {
             <MessageCon>
               <MessageView>
                 {successMessages &&
-                  message?.map(({message, fromSelf, createdAt}, index) => (
+                  messages?.map(({ message, fromSelf, createdAt }, index) => (
                     <MsgCon key={index} fromSelf={fromSelf}>
                       <MessageText>{message}</MessageText>
                       {fromSelf && (
                         <CheckCon fromSelf={fromSelf}>
-                          <Text style={{fontSize:10, color:'#A6ABAD', marginRight:3}}>{ formatMessageTimestamp(createdAt)}</Text>
+                          {/* <Text style={{fontSize:10, color:'#A6ABAD', marginRight:3}}>{ formatMessageTimestamp(createdAt)}</Text> */}
                           <Ionicons
                             name="checkmark-done-outline"
                             size={16}

@@ -1,4 +1,9 @@
-import { View,  TouchableOpacity, KeyboardAvoidingView } from "react-native";
+import {
+  View,
+  TouchableOpacity,
+  KeyboardAvoidingView,
+  ScrollView,
+} from "react-native";
 import React from "react";
 import styled from "styled-components/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -9,7 +14,7 @@ import { useLoginUserMutation } from "../app/feature/user/apiSlice";
 import { ActivityIndicator } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { Platform } from "react-native";
-import {useHeaderHeight} from '@react-navigation/elements';
+import { useHeaderHeight } from "@react-navigation/elements";
 
 export default function SignIn() {
   const [loginUser, { isLoading }] = useLoginUserMutation();
@@ -48,56 +53,61 @@ export default function SignIn() {
   return (
     <SafeAreaView>
       <StatusBar style="light" backgroundColor="#0B141A" />
-     <KeyboardAvoidingView
-     style={{height: '100%', backgroundColor: '#0b141a'}}
-     contentContainerStyle={{backgroundColor: '#0b141a'}}
-     behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-     keyboardVerticalOffset={headerHeight}
-     >
-     <Container
+      <KeyboardAvoidingView
+        style={{ height: "100%", backgroundColor: "#0b141a" }}
+        contentContainerStyle={{ backgroundColor: "#0b141a" }}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={headerHeight}
       >
-        <LogoCon></LogoCon>
-        <TextCon>
-          <HeadText style={{ color: "white" }}>
-            Sign In to ChatWave Social App
-          </HeadText>
-          <View style={{ display: "flex", flexDirection: "row", marginTop: 5 }}>
-            <BodyText style={{ color: "white" }}>First time here?</BodyText>
-            <TouchableOpacity onPress={() => navigation.navigate("sign-up")}>
-              <BodyText
-                style={{ color: "#005c4b", marginLeft: 5, fontWeight: 600 }}
+        <ScrollView horizontal={false}>
+          <Container>
+            <LogoCon></LogoCon>
+            <TextCon>
+              <HeadText style={{ color: "white" }}>
+                Sign In to ChatWave Social App
+              </HeadText>
+              <View
+                style={{ display: "flex", flexDirection: "row", marginTop: 5 }}
               >
-                Sign Up
-              </BodyText>
-            </TouchableOpacity>
-          </View>
-        </TextCon>
-        <FormCon>
-          <Input
-            placeholder="User Name"
-            placeholderTextColor="white"
-            value={username}
-            onChangeText={setUsername}
-          />
-          <Input
-            placeholder="Password"
-            placeholderTextColor="white"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry={true}
-          />
-          <SubmitBtn onPress={handlePress}>
-            {isLoading ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
-              <BodyText style={{ color: "white", fontSize: 16 }}>
-                Sign In
-              </BodyText>
-            )}
-          </SubmitBtn>
-        </FormCon>
-      </Container>
-     </KeyboardAvoidingView>
+                <BodyText style={{ color: "white" }}>First time here?</BodyText>
+                <TouchableOpacity
+                  onPress={() => navigation.navigate("sign-up")}
+                >
+                  <BodyText
+                    style={{ color: "#005c4b", marginLeft: 5, fontWeight: 600 }}
+                  >
+                    Sign Up
+                  </BodyText>
+                </TouchableOpacity>
+              </View>
+            </TextCon>
+            <FormCon>
+              <Input
+                placeholder="User Name"
+                placeholderTextColor="white"
+                value={username}
+                onChangeText={setUsername}
+              />
+              <Input
+                placeholder="Password"
+                placeholderTextColor="white"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry={true}
+              />
+              <SubmitBtn onPress={handlePress}>
+                {isLoading ? (
+                  <ActivityIndicator color="#fff" />
+                ) : (
+                  <BodyText style={{ color: "white", fontSize: 16 }}>
+                    Sign In
+                  </BodyText>
+                )}
+              </SubmitBtn>
+            </FormCon>
+          </Container>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }

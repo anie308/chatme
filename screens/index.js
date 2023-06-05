@@ -13,6 +13,7 @@ import CameraScreen from "./CameraScreen";
 import Profile from "./Profile";
 export default function Route() {
   const [currUser, setCurrUser] = useState(null);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
     const getToken = async () => {
@@ -22,13 +23,43 @@ export default function Route() {
 
     getToken();
   });
+  // useEffect(() => {
+  //   const getParams = async () => {
+  //     const decodedId = jwt_decode(currUser).id;
+  //     setToken(decodedId);
+  //   };
+  //   getParams();
+  // }, []);
+
+  // useEffect(() => {
+  //   if (currUser) {
+  //     socket.current = io(host);
+  //     socket.current.emit("add-user", token);
+  //   }
+  // }, [token]);
+
+  // useEffect(() => {
+  //   if (socket.current) {
+  //     socket.current.on("msg-recieve", (msg) => {
+  //       console.log(msg);
+  //       setArrivalMessage({ fromSelf: false, message: msg });
+  //       setUnreadCount((count) => count + 1); // Increment the unread count
+  //     });
+  //   }
+  // }, []);
+  
+
 
 
   const Stack = createNativeStackNavigator();
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName={`${currUser ? "chats" : "login"}`}>
-        <Stack.Screen
+       {
+          currUser ? (
+            <>
+             <Stack.Screen
+        readCount={unreadCount} // Pass the unread count to the Chats screen
           name="chats"
           options={{ headerShown: false }}
           component={Chats}
@@ -53,8 +84,10 @@ export default function Route() {
           }}
           component={Chat}
         />
-
-        <Stack.Screen
+            </>
+          ): (
+            <>
+            <Stack.Screen
           name="login"
           options={{
             headerShown: false,
@@ -75,6 +108,12 @@ export default function Route() {
           }}
           component={Avatar}
         />
+            
+            </>
+          )
+       }
+
+        
       </Stack.Navigator>
     </NavigationContainer>
   );

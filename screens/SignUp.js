@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   KeyboardAvoidingView,
+  ScrollView,
 } from "react-native";
 import React from "react";
 import styled from "styled-components/native";
@@ -57,56 +58,58 @@ export default function SignUp() {
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         keyboardVerticalOffset={headerHeight}
       >
-        <Container>
-          <LogoCon></LogoCon>
-          <TextCon>
-            <HeadText style={{ color: "white" }}>
-              Sign Up to ChatWave Social App
-            </HeadText>
-            <View
-              style={{ display: "flex", flexDirection: "row", marginTop: 5 }}
-            >
-              <BodyText style={{ color: "white" }}>Returning User?</BodyText>
-              <TouchableOpacity onPress={() => navigation.navigate("login")}>
-                <BodyText
-                  style={{ color: "#005c4b", marginLeft: 5, fontWeight: 600 }}
-                >
-                  Sign In
-                </BodyText>
-              </TouchableOpacity>
-            </View>
-          </TextCon>
-          <FormCon>
-            <Input
-              placeholder="Username"
-              placeholderTextColor="white"
-              value={username}
-              onChangeText={setUsername}
-            />
-            <Input
-              placeholder="Email"
-              placeholderTextColor="white"
-              value={email}
-              onChangeText={setEmail}
-            />
-            <Input
-              placeholder="Password"
-              placeholderTextColor="white"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry={true}
-            />
-            <SubmitBtn onPress={handlePress}>
-              {isLoading ? (
-                <ActivityIndicator color="#fff" />
-              ) : (
-                <BodyText style={{ color: "white", fontSize: 16 }}>
-                  Sign Up
-                </BodyText>
-              )}
-            </SubmitBtn>
-          </FormCon>
-        </Container>
+        <ScrollView horizontal={false}>
+          <Container>
+            <LogoCon></LogoCon>
+            <TextCon>
+              <HeadText style={{ color: "white" }}>
+                Sign Up to ChatWave Social App
+              </HeadText>
+              <View
+                style={{ display: "flex", flexDirection: "row", marginTop: 5 }}
+              >
+                <BodyText style={{ color: "white" }}>Returning User?</BodyText>
+                <TouchableOpacity onPress={() => navigation.navigate("login")}>
+                  <BodyText
+                    style={{ color: "#005c4b", marginLeft: 5, fontWeight: 600 }}
+                  >
+                    Sign In
+                  </BodyText>
+                </TouchableOpacity>
+              </View>
+            </TextCon>
+            <FormCon>
+              <Input
+                placeholder="Username"
+                placeholderTextColor="white"
+                value={username}
+                onChangeText={setUsername}
+              />
+              <Input
+                placeholder="Email"
+                placeholderTextColor="white"
+                value={email}
+                onChangeText={setEmail}
+              />
+              <Input
+                placeholder="Password"
+                placeholderTextColor="white"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry={true}
+              />
+              <SubmitBtn onPress={handlePress}>
+                {isLoading ? (
+                  <ActivityIndicator color="#fff" />
+                ) : (
+                  <BodyText style={{ color: "white", fontSize: 16 }}>
+                    Sign Up
+                  </BodyText>
+                )}
+              </SubmitBtn>
+            </FormCon>
+          </Container>
+        </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );

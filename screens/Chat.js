@@ -46,8 +46,10 @@ export default function Chat() {
 
         socket.current.on("msg-recieve", (msg) => {
           console.log("Received msg:", msg);
-          setMessages((messages) => messages.concat(msg));
+            setMessages((messages) => messages.concat(msg));
+         
         });
+         refetchMessages();
       });
     }
     return () => {

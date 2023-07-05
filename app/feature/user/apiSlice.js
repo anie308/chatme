@@ -10,6 +10,13 @@ export const clientApi = apiSlice.injectEndpoints({
         body,
       }),
     }),
+    updateUser: builder.mutation({
+      query: ({userId, ...rest}) => ({
+        url: `/user/update/${userId}`,
+        method: "PUT",
+        rest,
+    }),
+  }),
     loginUser: builder.mutation({
       query: (body) => ({
         url: "/user/login",
@@ -45,4 +52,4 @@ export const clientApi = apiSlice.injectEndpoints({
   }),
 });
 
-export const { useRegisterUserMutation, useLoginUserMutation, useGetAllUsersQuery, useGetSingleUserQuery, useAddMessageMutation ,useGetMessagesQuery } = clientApi;
+export const { useRegisterUserMutation, useLoginUserMutation, useGetAllUsersQuery, useGetSingleUserQuery, useAddMessageMutation ,useGetMessagesQuery, useUpdateUserMutation } = clientApi;

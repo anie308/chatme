@@ -128,7 +128,6 @@ export default function Chats() {
 }
 
 const Container = styled.View`
-  flex-direction: column;
   height: 100%;
 `;
 

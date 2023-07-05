@@ -1,64 +1,61 @@
 import React from "react";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import { useState } from "react";
 import { useEffect } from "react";
 import { TouchableOpacity } from "react-native";
 import styled from "styled-components/native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import axios from "axios";
 import {
   Fontisto,
   MaterialCommunityIcons,
   FontAwesome,
 } from "@expo/vector-icons";
+import { useUpdateUserMutation } from "../app/feature/user/apiSlice";
 
 export default function Profile(props) {
-  const [displayName, setDisplayName] = useState("");
+  const route = useRoute();
+  const [updateUser] = useUpdateUserMutation();
+  const { userId } = route.params;
   const [description, setDescription] = useState("");
-  const [selectedImage, setSelectedImage] = useState(null);
+  const [profilePicture, setProfilePicture] = useState(null);
   const [user, setUser] = useState(null);
   const navigation = useNavigation();
 
   useEffect(() => {
     if (props.route.params?.imagePath) {
-      setSelectedImage(props.route.params.imagePath);
+      setProfilePicture(props.route.params.imagePath);
+      setUser(userId)
     }
   }, [props.route.params?.imagePath]);
 
   useEffect(() => {
-    console.log(selectedImage);
-  }, [selectedImage, user]);
+    console.log(profilePicture);
+  }, [profilePicture, user]);
+  console.log(user)
 
 
 
   const handlePress = async () => {
-    if (!displayName.trim() || !description.trim()) {
+    if (!description.trim()) {
       alert("Please set Username");
     } else {
-      let photoUrl;
-      if (selectedImage) {
-        const { url } = await uploadImage(
-          selectedImage,
-          `images/${user.uid}`,
-          "profilePicture"
-        );
-        photoUrl = url;
-      }
-
+      
       const userData = {
-        displayName,
         description,
-        email: user.email,
+        profilePicture
       };
+      console.log(userData);
+      const response = await axios.put(`https://chatwave.onrender.com/api/v1/user/update/${userId}`, userData);
+      console.log(response)
 
-      if (photoUrl) {
-        userData.photoUrl = photoUrl;
-      }
+      
 
       
       
 
 
-    navigation.navigate("chats");
+    // navigation.navigate("login");
     }
     
   };
@@ -69,52 +66,49 @@ export default function Profile(props) {
         <TopNav>
           <BackIcon>
            
-           <TouchableOpacity onPress={()=> navigation.goBack()}>
-           <FontAwesome name="long-arrow-left" size={28} color="black" />
+           <TouchableOpacity style={{backgroundColor:"#0b141a" }} onPress={()=> navigation.goBack()}>
+           <FontAwesome name="long-arrow-left" size={28} color="white" />
            </TouchableOpacity>
           </BackIcon>
-          <BodyText style={{ color: "#4a86f7", fontSize: 16 }}>
+          <BodyText style={{ color: "#005c4b", fontSize: 16 }}>
             Profile Settings
           </BodyText>
           <BackIcon>
-            <Fontisto name="more-v-a" size={24} color="black" />
+            <Fontisto name="more-v-a" size={24} color="white" />
           </BackIcon>
         </TopNav>
         <ProfileCon>
           <ImageBtn
-            onPress={() => navigation.navigate("CameraScreen")}
+            onPress={() => navigation.navigate("camera-screen")}
           >
-            {!selectedImage ? (
+            {!profilePicture ? (
               <MaterialCommunityIcons
                 name="camera"
                 size={60}
-                color="rgb(59 130 246)"
+                color="white"
               />
             ) : (
               <ImageId
-                source={{ uri: selectedImage }}
+                source={{ uri: profilePicture }}
               />
             )}
           </ImageBtn>
           <TextCon>
-            <BodyText style={{ fontSize: 20, color: "#4a86f7" }}>
+            <BodyText style={{ fontSize: 20, color: "#005c4b" }}>
               Profile Info
             </BodyText>
             <BodyText style={{ textAlign: "center" }}>
-              Please provide your name and optional profile picture
+              Please provide your Profile Picture and Description
             </BodyText>
           </TextCon>
           <FormCon>
-          <Input
-            placeholder="UserName"
-            value={displayName}
-            onChangeText={setDisplayName}
-          />
+         
           <Input
             placeholder="Description"
             value={description}
             onChangeText={setDescription}
             multiline={true}
+            placeholderTextColor="white"
           />
           <SubmitBtn onPress={handlePress}>
             <BodyText style={{ color: "white", fontSize: 16 }}>
@@ -131,11 +125,11 @@ export default function Profile(props) {
 const Container = styled.View`
   height: 100%;
   width: 100%;
-  background-color: #f5f7fa;
+  background-color: #0b141a;
 `;
 const TopNav = styled.View`
   height: 70px;
-  background-color: white;
+  background-color: #0b141a;
   width: 100%;
   flex-direction: row;
   justify-content: space-between;
@@ -145,10 +139,11 @@ const TopNav = styled.View`
 
 const BodyText = styled.Text`
   font-family: "Medium";
+  color: white;
 `;
 
 const BackIcon = styled.TouchableOpacity`
-  background-color: white;
+  background-color: #0b141a;
   flex-direction: row;
   align-items: center;
 `;
@@ -161,11 +156,11 @@ const ProfileCon = styled.View`
 `;
 
 const ImageBtn = styled.TouchableOpacity`
-  height: 150px;
-  width: 150px;
-  border-radius: 75px;
-  border: 10px solid #e9edf1;
-  background-color: white;
+height: 150px;
+width: 150px;
+background-color: #005c4b;
+border-radius: 75px;
+border: 10px solid #e9edf1;
   align-items: center;
   justify-content: center;
   shadow-color: black;
@@ -195,19 +190,21 @@ padding: 0 20px;
 `
 
 const Input = styled.TextInput`
-  border: 1.5px solid #4a86f7;
-  height: 60px;
+border: 1.5px solid #005c4b;
+color:white;
+height: 60px;
   border-radius: 12px;
   padding: 10px;
   font-family: "Regular";
   font-size: 14px;
   margin-top: 30px;
+  
 `;
 
 const SubmitBtn = styled.TouchableOpacity`
   height: 60px;
   width: 100%;
-  background-color: #4a86f7;
+  background-color: #005c4b;
   flex-direction: column;
   justify-content: center;
   align-items: center;

@@ -30,14 +30,16 @@ export default function SignUp() {
     } else {
       try {
         const user = { email, username, password };
-        const response = await registerUser(user).unwrap().catch(err => console.warn(err));
+        const response = await registerUser(user).unwrap()
         showMessage({
           message: "Sign In Success",
           description: response.message,
           type: "success",
           icon: "success",
         });
-        navigation.navigate("login");
+        console.log(response?.data)
+
+        // navigation.navigate("profile", {userId: });
       } catch (err) {
         showMessage({
           message: err.message || err.data.message,

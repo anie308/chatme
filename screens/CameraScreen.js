@@ -50,7 +50,7 @@ export default function CameraScreen() {
     });
     if (!result.canceled) {
       const path = result.assets[0].uri;
-      navigation.navigate("Profile", { imagePath: path });
+      navigation.navigate("profile", { imagePath: path });
     }
   };
 
@@ -131,17 +131,17 @@ export default function CameraScreen() {
               />
             )}
           </GalleryButton>
-          <TouchableOpacity
-            className="h-[80px] w-[80px] bg-red-300 border-[2px] border-white  rounded-full"
+          <Take
             disabled={!isCameraReady}
             onPress={takePicture}
-          ></TouchableOpacity>
+          >
+            <View className="h-[70px] w-[70px] bg-white rounded-full"></View>
+          </Take>
           <TouchableOpacity
-            className="  rounded-full flex items-center justify-center"
             onPress={() => navigation.goBack()}
           >
-            <MaterialCommunityIcons name="cancel" size={50} color="black" />
-            <Text className="mt-[5px]">Cancel</Text>
+            <MaterialCommunityIcons name="cancel" size={50} color="white" />
+            <Text style={{color: 'white', fontFamily: 'Medium'}}>Cancel</Text>
           </TouchableOpacity>
         </BottomCon>
       </Container>
@@ -162,6 +162,15 @@ height: 80%;
 background-color: red;
 `
 
+const Take = styled.TouchableOpacity`
+height: 80px;
+width: 80px;
+background-color: white;
+border-radius: 40px;
+border: 9px solid #0b141a;
+
+`
+
 const ButtonCon = styled.View`
 position: absolute;
 top: 40px;
@@ -174,7 +183,7 @@ align-items: center;
 
 const BottomCon = styled.View`
 height: 20%;
-background-color: #4a86f7;
+background-color: #005c4b;
 flex-direction: row;
 justify-content: space-between;
 align-items: center;
